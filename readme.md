@@ -1,3 +1,8 @@
+## How to run
+
+- python server.py
+- to fire request to server - curl http://localhost:8888/hello
+
 ## About
 
 A basic HTTP server written in python that can handle multiple concurrent requests
@@ -11,5 +16,5 @@ Basic concepts and steps followed to build this server
  - Handle interruptions of concurrent system calls using restarts - child process existing causing SIGCHILD causing event handler in parent and parent's accept() system call to accept socket connection
  - Set up a SIGCHLD event handler - Use a waitpid system call with a WNOHANG option in a loop to make sure that all terminated child processes are taken care of and nothing is missed in case mulitple child process exit at once
 
-Reference
+## Reference
 - https://ruslanspivak.com/
