@@ -1,10 +1,18 @@
 import os
+import signal
 import socket
 import time
 
-
 SERVER_ADDRESS = (HOST, PORT) = '', 8888
 REQUEST_QUEUE_SIZE = 5
+
+
+def grim_reaper(signum, frame):
+    pid, status = os.wait()
+    print(
+        'Child {pid} terminated with status {status}'
+        '\n'.format(pid=pid, status=status)
+    )
 
 
 def handle_request(client_connection):
@@ -16,7 +24,8 @@ HTTP/1.1 200 OK
 Hello, World!
 """
     client_connection.sendall(http_response)
-    time.sleep(60)
+    # sleep to allow the parent to loop over to 'accept' and block there
+    time.sleep(3)
 
 
 def serve_forever():
@@ -26,6 +35,8 @@ def serve_forever():
     listen_socket.listen(REQUEST_QUEUE_SIZE)
     print('Serving HTTP on port {port} ...'.format(port=PORT))
 
+    signal.signal(signal.SIGCHLD, grim_reaper)
+
     while True:
         client_connection, client_address = listen_socket.accept()
         pid = os.fork()
@@ -33,9 +44,9 @@ def serve_forever():
             listen_socket.close()  # close child copy
             handle_request(client_connection)
             client_connection.close()
-            os._exit(0)  # child exits here
+            os._exit(0)
         else:  # parent
-            client_connection.close()  # close parent copy and loop over
+            client_connection.close()
 
 if __name__ == '__main__':
     serve_forever()
