@@ -8,7 +8,17 @@ REQUEST_QUEUE_SIZE = 1024
 
 
 def grim_reaper(signum, frame):
-    pid, status = os.wait()
+    while True:
+        try:
+            pid, status = os.waitpid(
+                -1,          # Wait for any child process
+                 os.WNOHANG  # Do not block and return EWOULDBLOCK error
+            )
+        except OSError:
+            return
+
+        if pid == 0:  # no more zombies
+            return
 
 
 def handle_request(client_connection):
@@ -50,7 +60,6 @@ def serve_forever():
             os._exit(0)
         else:  # parent
             client_connection.close()  # close parent copy and loop over
-
 
 if __name__ == '__main__':
     serve_forever()
