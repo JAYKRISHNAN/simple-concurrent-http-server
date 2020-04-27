@@ -1,4 +1,7 @@
+import os
 import socket
+import time
+
 
 SERVER_ADDRESS = (HOST, PORT) = '', 8888
 REQUEST_QUEUE_SIZE = 5
@@ -13,6 +16,7 @@ HTTP/1.1 200 OK
 Hello, World!
 """
     client_connection.sendall(http_response)
+    time.sleep(60)
 
 
 def serve_forever():
@@ -24,8 +28,14 @@ def serve_forever():
 
     while True:
         client_connection, client_address = listen_socket.accept()
-        handle_request(client_connection)
-        client_connection.close()
+        pid = os.fork()
+        if pid == 0:  # child
+            listen_socket.close()  # close child copy
+            handle_request(client_connection)
+            client_connection.close()
+            os._exit(0)  # child exits here
+        else:  # parent
+            client_connection.close()  # close parent copy and loop over
 
 if __name__ == '__main__':
     serve_forever()
