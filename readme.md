@@ -1,7 +1,7 @@
 ## How to run
 
-- python server.py
-- to fire request to server - curl http://localhost:8888/hello
+- `python server.py`
+- to fire request to server - `curl http://localhost:8888/hello`
 
 ## About
 
